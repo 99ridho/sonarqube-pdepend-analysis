@@ -621,29 +621,21 @@ class SonarQubeAnalyzer:
 
 def main():
     import sys
+    import json
+
+    with open('./config.json', 'r') as file:
+        data = json.load(file)
     
     # Configuration
     config = {
-        'sonar_host': 'http://kodir-linux-pc.dala-betelgeuse.ts.net:9000',
-        'project_key': 'siakadv2',
-        'token': 'squ_bb27605c479270500d34cde9afaa7fd9ed159f5b',
+        'sonar_host': data['sonar_host'],
+        'project_key': data['sonar_project_key'],
+        'token': data['sonar_token'],
         'output_dir': './output_sonarqube'
     }
     
     # Optional: provide specific file paths
-    file_paths = [
-        'application/controllers/penjadwalan.php',
-        'application/controllers/isi_krs.php',
-        'application/controllers/berkas_wisuda.php',
-        'application/controllers/dosenPKM.php',
-        'application/controllers/Nilai.php',
-        'application/controllers/dosen.php',
-        'application/controllers/khs.php',
-        'application/controllers/jamu.php',
-        'application/controllers/transaksi_akademik.php',
-        'application/controllers/daftar_pkm.php'
-        # Add more files or leave empty to scan all
-    ]
+    file_paths = data['file_paths_to_analyze']
     
     print(f"SonarQube Host: {config['sonar_host']}")
     print(f"Project Key: {config['project_key']}")

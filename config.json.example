@@ -1,0 +1,6 @@
+{
+    "sonar_host": "",
+    "sonar_project_key": "",
+    "sonar_token": "",
+    "file_paths_to_analyze": []
+}
