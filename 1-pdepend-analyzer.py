@@ -152,18 +152,16 @@ class PdependAnalyzer:
             'ce': 'max'
         }).reset_index()
 
-        # Merge file and class metrics
-        complexity_df = pd.merge(file_complexity, class_metrics, on='file', how='left')
-        complexity_df = complexity_df.fillna(0)
+        # Merge file and class metrics (inner join to only include files with class data)
+        complexity_df = pd.merge(file_complexity, class_metrics, on='file', how='inner')
 
         # Add method complexity (use method-level CCN as the primary CCN metric)
         method_stats = self.methods_df.groupby('file').agg({
-            'ccn': ['mean', 'max', 'sum']
+            'ccn': ['sum']
         }).reset_index()
-        method_stats.columns = ['file', 'method_ccn_avg', 'method_ccn_max', 'ccn']
+        method_stats.columns = ['file', 'ccn']
 
-        complexity_df = pd.merge(complexity_df, method_stats, on='file', how='left')
-        complexity_df = complexity_df.fillna(0)
+        complexity_df = pd.merge(complexity_df, method_stats, on='file', how='inner')
         
         # Sort by WMC
         complexity_df = complexity_df.sort_values('wmc', ascending=False)
