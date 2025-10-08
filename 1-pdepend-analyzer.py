@@ -231,7 +231,7 @@ class PdependAnalyzer:
     def viz_complexity_distribution(self, df):
         """Visualization: Complexity metrics distribution"""
         fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-        fig.suptitle('Figure 5.1: Complexity Metrics Distribution', fontsize=16, fontweight='bold')
+        #fig.suptitle('Figure 5.1: Complexity Metrics Distribution', fontsize=16, fontweight='bold')
         
         metrics = [
             ('ncloc', 'NCLOC (Lines of Code)', axes[0, 0]),
@@ -293,8 +293,8 @@ class PdependAnalyzer:
         ax.set_yticklabels(files)
         ax.invert_yaxis()
         ax.set_xlabel('Weighted Methods per Class (WMC)', fontsize=12)
-        ax.set_title('Figure 5.2: Top 10 Most Complex Files by WMC', 
-                    fontsize=14, fontweight='bold', pad=20)
+        # ax.set_title('Figure 5.2: Top 10 Most Complex Files by WMC', 
+        #             fontsize=14, fontweight='bold', pad=20)
         ax.legend(loc='lower right')
         ax.grid(True, alpha=0.3, axis='x')
         
@@ -341,8 +341,8 @@ class PdependAnalyzer:
         
         ax.set_xlabel('Cyclomatic Complexity (CCN)', fontsize=12)
         ax.set_ylabel('Number of Methods', fontsize=12)
-        ax.set_title('Figure 5.3: Method Complexity Distribution', 
-                    fontsize=14, fontweight='bold', pad=20)
+        # ax.set_title('Figure 5.3: Method Complexity Distribution', 
+        #             fontsize=14, fontweight='bold', pad=20)
         ax.legend(loc='upper right')
         ax.grid(True, alpha=0.3, axis='y')
         
@@ -387,8 +387,8 @@ class PdependAnalyzer:
         
         ax.set_xlabel('NCLOC (Non-Comment Lines of Code)', fontsize=12)
         ax.set_ylabel('WMC (Weighted Methods per Class)', fontsize=12)
-        ax.set_title('Figure 5.4: File Size vs Complexity', 
-                    fontsize=14, fontweight='bold', pad=20)
+        # ax.set_title('Figure 5.4: File Size vs Complexity', 
+        #             fontsize=14, fontweight='bold', pad=20)
         ax.legend(loc='upper left')
         ax.grid(True, alpha=0.3)
         

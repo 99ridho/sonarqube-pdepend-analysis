@@ -399,8 +399,8 @@ class SonarQubeAnalyzer:
         
         ax.set_xlabel('Severity Level', fontsize=12)
         ax.set_ylabel('Number of Issues', fontsize=12)
-        ax.set_title('Figure 5.5: Issues Distribution by Quality Aspect and Severity',
-                    fontsize=14, fontweight='bold', pad=20)
+        # ax.set_title('Figure 5.5: Issues Distribution by Quality Aspect and Severity',
+        #             fontsize=14, fontweight='bold', pad=20)
         ax.set_xticks(x)
         ax.set_xticklabels(severities)
         ax.legend(loc='upper right', fontsize=10)
@@ -443,8 +443,8 @@ class SonarQubeAnalyzer:
         ax.set_yticklabels(files)
         ax.invert_yaxis()
         ax.set_xlabel('Number of Issues', fontsize=12)
-        ax.set_title('Figure 5.6: Top 10 Files by Total Issues',
-                    fontsize=14, fontweight='bold', pad=20)
+        # ax.set_title('Figure 5.6: Top 10 Files by Total Issues',
+        #             fontsize=14, fontweight='bold', pad=20)
         ax.legend(loc='lower right')
         ax.grid(True, alpha=0.3, axis='x')
         
@@ -503,8 +503,8 @@ class SonarQubeAnalyzer:
         
         ax2.set_title('By Severity Level', fontsize=12, fontweight='bold')
         
-        fig.suptitle('Figure 5.7: Overall Issue Distribution', 
-                    fontsize=14, fontweight='bold', y=1.02)
+        # fig.suptitle('Figure 5.7: Overall Issue Distribution', 
+        #             fontsize=14, fontweight='bold', y=1.02)
         
         plt.tight_layout()
         save_path = self.output_dir / 'figure_5_7_issue_distribution.png'
@@ -574,8 +574,8 @@ class SonarQubeAnalyzer:
         
         ax2.set_title('Distribution by Category', fontsize=12, fontweight='bold')
         
-        fig.suptitle('Figure 5.8: Security Hotspot Categorization',
-                    fontsize=14, fontweight='bold', y=1.00)
+        # fig.suptitle('Figure 5.8: Security Hotspot Categorization',
+        #             fontsize=14, fontweight='bold', y=1.00)
         
         plt.tight_layout()
         save_path = self.output_dir / 'figure_5_8_hotspot_categories.png'

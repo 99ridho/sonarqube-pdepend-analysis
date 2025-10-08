@@ -100,18 +100,18 @@ class CorrelationAnalyzer:
             'total_maintainability',
             # 'total_issues',
             # # By severity (all quality aspects combined)
-            'security_blocker',
-            'security_high',
-            'security_medium',
-            'security_low',
-            'reliability_blocker',
-            'reliability_high',
-            'reliability_medium',
-            'reliability_low',
-            'maintainability_blocker',
-            'maintainability_high',
-            'maintainability_medium',
-            'maintainability_low'
+            # 'security_blocker',
+            # 'security_high',
+            # 'security_medium',
+            # 'security_low',
+            # 'reliability_blocker',
+            # 'reliability_high',
+            # 'reliability_medium',
+            # 'reliability_low',
+            # 'maintainability_blocker',
+            # 'maintainability_high',
+            # 'maintainability_medium',
+            # 'maintainability_low'
         ]
 
         # Initialize matrices
@@ -174,7 +174,7 @@ class CorrelationAnalyzer:
         self.pvalue_matrix.to_csv(pvalue_output)
         print(f"Saved: {pvalue_output}")
 
-        # Create summary of significant correlations (p < 0.05)
+        # Create summary of significant correlations
         significant_corrs = []
 
         for complexity_metric in self.correlation_matrix.index:
@@ -182,7 +182,7 @@ class CorrelationAnalyzer:
                 r = self.correlation_matrix.loc[complexity_metric, issue_metric]
                 p = self.pvalue_matrix.loc[complexity_metric, issue_metric]
 
-                if not np.isnan(r) and not np.isnan(p) and p < 0.05:
+                if not np.isnan(r) and not np.isnan(p):
                     significant_corrs.append({
                         'complexity_metric': complexity_metric,
                         'issue_metric': issue_metric,
@@ -213,8 +213,8 @@ class CorrelationAnalyzer:
         # Create figure with larger size for readability
         fig, ax = plt.subplots(figsize=(14, 10))
 
-        # Create mask for non-significant correlations (p >= 0.05)
-        mask = self.pvalue_matrix >= 0.05
+        # Create mask for non-significant correlations
+        #mask = self.pvalue_matrix >= 0.05
 
         # Create heatmap
         sns.heatmap(
@@ -229,15 +229,15 @@ class CorrelationAnalyzer:
             linewidths=0.5,
             cbar_kws={'label': 'Pearson Correlation (r)'},
             ax=ax,
-            mask=mask,  # Gray out non-significant correlations
+            #mask=mask,  # Gray out non-significant correlations
             annot_kws={'size': 8}
         )
 
         # Customize labels
         ax.set_xlabel('SonarQube Quality Issues', fontsize=12, fontweight='bold')
         ax.set_ylabel('PDépend Complexity Metrics', fontsize=12, fontweight='bold')
-        ax.set_title('Correlation between Code Complexity and Quality Issues\n(Only p < 0.05 shown)',
-                     fontsize=14, fontweight='bold', pad=20)
+        # ax.set_title('Correlation between Code Complexity and Quality Issues\n(Only p < 0.05 shown)',
+        #              fontsize=14, fontweight='bold', pad=20)
 
         # Rotate x-axis labels for readability
         plt.xticks(rotation=45, ha='right')
