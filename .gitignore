@@ -1,5 +1,6 @@
 .venv
 output_pdepend
 output_sonarqube
+output_correlation
 __pycache__
 config.json
