@@ -146,23 +146,22 @@ class PdependAnalyzer:
         # Class-level complexity (aggregate by file)
         class_metrics = self.classes_df.groupby('file').agg({
             'wmc': 'sum',
-            'ccn': 'sum',
             'nom': 'sum',
             'cbo': 'max',
             'ca': 'max',
             'ce': 'max'
         }).reset_index()
-        
+
         # Merge file and class metrics
         complexity_df = pd.merge(file_complexity, class_metrics, on='file', how='left')
         complexity_df = complexity_df.fillna(0)
-        
-        # Add method complexity
+
+        # Add method complexity (use method-level CCN as the primary CCN metric)
         method_stats = self.methods_df.groupby('file').agg({
             'ccn': ['mean', 'max', 'sum']
         }).reset_index()
-        method_stats.columns = ['file', 'method_ccn_avg', 'method_ccn_max', 'method_ccn_total']
-        
+        method_stats.columns = ['file', 'method_ccn_avg', 'method_ccn_max', 'ccn']
+
         complexity_df = pd.merge(complexity_df, method_stats, on='file', how='left')
         complexity_df = complexity_df.fillna(0)
         
@@ -173,7 +172,7 @@ class PdependAnalyzer:
         complexity_path = self.output_dir / 'section_5_2_complexity_data.csv'
         complexity_df.to_csv(complexity_path, index=False)
         print(f"  ✓ Saved: {complexity_path}")
-        
+
         # Generate distribution statistics
         distribution = {
             'NCLOC': self.describe_distribution(complexity_df['ncloc']),
@@ -335,9 +334,10 @@ class PdependAnalyzer:
         # Statistics
         stats_text = (f"Total Methods: {len(ccn_values)}\n"
                      f"Mean CCN: {ccn_values.mean():.1f}\n"
+                     f"Median CCN: {ccn_values.median():.1f}\n"
                      f"Methods > 10: {(ccn_values > 10).sum()}\n"
                      f"Methods > 30: {(ccn_values > 30).sum()}")
-        ax.text(0.98, 0.98, stats_text, transform=ax.transAxes,
+        ax.text(0.98, 0.86, stats_text, transform=ax.transAxes,
                fontsize=10, verticalalignment='top', horizontalalignment='right',
                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
         

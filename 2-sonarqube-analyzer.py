@@ -190,46 +190,79 @@ class SonarQubeAnalyzer:
     
     def fetch_hotspot_categories(self):
         """Fetch security hotspot categories (Section 5.5)"""
-        print("\n📊 Fetching security hotspot categories...")
-        
+        print("\n📊 Fetching security hotspots...")
+
         hotspots_url = f"{self.base_url}/hotspots/search"
-        
+        all_hotspots = []
+        page = 1
+        category_counts = {}
+
         try:
-            response = requests.get(hotspots_url, params={
-                'projectKey': self.project_key,
-                'facets': 'categories',
-                'ps': 1
-            }, auth=self.auth, timeout=30)
-            
-            response.raise_for_status()
-            data = response.json()
-            
+            while True:
+                response = requests.get(hotspots_url, params={
+                    'projectKey': self.project_key,
+                    'ps': 500,
+                    'p': page
+                }, auth=self.auth, timeout=30)
+
+                response.raise_for_status()
+                data = response.json()
+
+                hotspots = data.get('hotspots', [])
+                if not hotspots:
+                    break
+
+                # Aggregate categories
+                for hotspot in hotspots:
+                    category_code = hotspot.get('securityCategory', 'unknown')
+                    category_counts[category_code] = category_counts.get(category_code, 0) + 1
+
+                all_hotspots.extend(hotspots)
+
+                # Check pagination
+                paging = data.get('paging', {})
+                total_pages = (paging.get('total', 0) + 499) // 500  # Calculate total pages
+
+                print(f"  ✓ Fetched page {page}/{total_pages} ({len(hotspots)} hotspots)")
+
+                if page >= total_pages:
+                    break
+
+                page += 1
+
+                # Safety limit
+                if page > 100:
+                    print("  ⚠️ Reached page limit (100), stopping...")
+                    break
+
+            # Build categories list (use API codes as-is)
             categories = []
-            for facet in data.get('facets', []):
-                if facet['property'] == 'categories':
-                    for value in facet['values']:
-                        categories.append({
-                            'category': value['val'],
-                            'count': value['count']
-                        })
-            
+            for category_code, count in category_counts.items():
+                category_name = category_code
+                categories.append({
+                    'category_code': category_code,
+                    'category_name': category_name,
+                    'count': count
+                })
+
             self.hotspot_categories_df = pd.DataFrame(categories).sort_values('count', ascending=False)
-            
+
             # Calculate percentages
-            total = self.hotspot_categories_df['count'].sum()
-            self.hotspot_categories_df['percentage'] = (self.hotspot_categories_df['count'] / total * 100).round(1)
-            
+            if not self.hotspot_categories_df.empty:
+                total = self.hotspot_categories_df['count'].sum()
+                self.hotspot_categories_df['percentage'] = (self.hotspot_categories_df['count'] / total * 100).round(1)
+
             # Save results
             output_path = self.output_dir / 'section_5_5_hotspot_categories.csv'
             self.hotspot_categories_df.to_csv(output_path, index=False)
             print(f"  ✓ Saved: {output_path}")
             print(f"  ✓ Found {len(categories)} hotspot categories")
-            print(f"  ✓ Total hotspots: {total}")
-            
+            print(f"  ✓ Total hotspots: {len(all_hotspots)}")
+
         except Exception as e:
             print(f"  ❌ Error fetching hotspot categories: {e}")
             self.hotspot_categories_df = pd.DataFrame()
-        
+
         return self.hotspot_categories_df
     
     def generate_section_5_3_analysis(self):
@@ -494,9 +527,9 @@ class SonarQubeAnalyzer:
     def viz_hotspot_categories(self):
         """Visualization: Security hotspot categories"""
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
-        
+
         # Left: Bar chart
-        categories = self.hotspot_categories_df['category'].head(10).values
+        categories = self.hotspot_categories_df['category_name'].head(10).values
         counts = self.hotspot_categories_df['count'].head(10).values
         
         bars = ax1.barh(range(len(categories)), counts, color='coral', alpha=0.8)
@@ -518,8 +551,8 @@ class SonarQubeAnalyzer:
         # Right: Pie chart (top 8 + others)
         top8 = self.hotspot_categories_df.head(8)
         others_count = self.hotspot_categories_df['count'].iloc[8:].sum() if len(self.hotspot_categories_df) > 8 else 0
-        
-        pie_labels = list(top8['category'].values)
+
+        pie_labels = list(top8['category_name'].values)
         pie_counts = list(top8['count'].values)
         
         if others_count > 0:
@@ -602,6 +635,13 @@ def main():
         'application/controllers/penjadwalan.php',
         'application/controllers/isi_krs.php',
         'application/controllers/berkas_wisuda.php',
+        'application/controllers/dosenPKM.php',
+        'application/controllers/Nilai.php',
+        'application/controllers/dosen.php',
+        'application/controllers/khs.php',
+        'application/controllers/jamu.php',
+        'application/controllers/transaksi_akademik.php',
+        'application/controllers/daftar_pkm.php'
         # Add more files or leave empty to scan all
     ]
     
