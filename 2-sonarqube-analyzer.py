@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
 SonarQube Analyzer & Visualizer
-For Research Paper Sections 5.3 (Quality Issues) and 5.5 (Security Hotspots)
+For Research Paper Sections 5.3, 5.5, and 5.6
+- Section 5.3: Quality Issues
+- Section 5.5: Security Hotspots
+- Section 5.6: OWASP Top 10 - 2021 Analysis
 Input: File paths list + SonarQube API access
 """
 
@@ -34,6 +37,7 @@ class SonarQubeAnalyzer:
         
         self.file_issues_df = None
         self.hotspot_categories_df = None
+        self.owasp_top10_df = None
         self.overall_stats = None
     
     def fetch_file_issues(self):
@@ -264,7 +268,131 @@ class SonarQubeAnalyzer:
             self.hotspot_categories_df = pd.DataFrame()
 
         return self.hotspot_categories_df
-    
+
+    def fetch_owasp_top10(self):
+        """Fetch OWASP Top 10 - 2021 Analysis"""
+        print("\n📊 Fetching OWASP Top 10 - 2021 analysis...")
+
+        issues_url = f"{self.base_url}/issues/search"
+
+        try:
+            # Step 1: Fetch facets to get OWASP categories
+            print("  ℹ️  Fetching OWASP Top 10 facets...")
+            response = requests.get(issues_url, params={
+                'components': self.project_key,
+                'ps': 1,
+                'facets': 'owaspTop10-2021'
+            }, auth=self.auth, timeout=30)
+
+            response.raise_for_status()
+            data = response.json()
+
+            # Extract OWASP categories from facets
+            owasp_categories = []
+            facets = data.get('facets', [])
+            for facet in facets:
+                if facet.get('property') == 'owaspTop10-2021':
+                    for value in facet.get('values', []):
+                        owasp_categories.append(value.get('val'))
+
+            if not owasp_categories:
+                print("  ⚠️ No OWASP Top 10 - 2021 categories found")
+                self.owasp_top10_df = pd.DataFrame()
+                return self.owasp_top10_df
+
+            print(f"  ✓ Found {len(owasp_categories)} OWASP categories: {', '.join(owasp_categories)}")
+
+            # Step 2: Fetch issues for all OWASP categories
+            print("  ℹ️  Fetching OWASP Top 10 issues...")
+            owasp_param = ','.join(owasp_categories)
+
+            all_issues = []
+            page = 1
+
+            while True:
+                response = requests.get(issues_url, params={
+                    'components': self.project_key,
+                    's': 'SEVERITY',
+                    'ps': 500,
+                    'p': page,
+                    'facets': 'owaspTop10-2021',
+                    'owaspTop10-2021': owasp_param
+                }, auth=self.auth, timeout=30)
+
+                response.raise_for_status()
+                data = response.json()
+
+                issues = data.get('issues', [])
+                if not issues:
+                    break
+
+                all_issues.extend(issues)
+
+                # Check pagination
+                paging = data.get('paging', {})
+                total_pages = (paging.get('total', 0) + 499) // 500
+
+                print(f"  ✓ Fetched page {page}/{total_pages} ({len(issues)} issues)")
+
+                if page >= total_pages:
+                    break
+
+                page += 1
+
+                # Safety limit
+                if page > 100:
+                    print("  ⚠️ Reached page limit (100), stopping...")
+                    break
+
+            # Step 3: Aggregate issues by OWASP category
+            print("  ℹ️  Aggregating issues by OWASP category...")
+            category_data = {}
+
+            # Re-fetch facets with all issues to get accurate counts
+            response = requests.get(issues_url, params={
+                'components': self.project_key,
+                'ps': 1,
+                'facets': 'owaspTop10-2021',
+                'owaspTop10-2021': owasp_param
+            }, auth=self.auth, timeout=30)
+
+            response.raise_for_status()
+            data = response.json()
+
+            facets = data.get('facets', [])
+            for facet in facets:
+                if facet.get('property') == 'owaspTop10-2021':
+                    for value in facet.get('values', []):
+                        category_code = value.get('val')
+                        count = value.get('count', 0)
+                        category_data[category_code] = {
+                            'category_code': category_code,
+                            'category_name': f'A{category_code[1:].upper()}' if category_code.startswith('a') else category_code.upper(),
+                            'count': count
+                        }
+
+            # Convert to DataFrame
+            categories_list = list(category_data.values())
+            self.owasp_top10_df = pd.DataFrame(categories_list).sort_values('count', ascending=False)
+
+            # Calculate percentages
+            if not self.owasp_top10_df.empty:
+                total = self.owasp_top10_df['count'].sum()
+                self.owasp_top10_df['percentage'] = (self.owasp_top10_df['count'] / total * 100).round(1)
+
+            # Save results
+            output_path = self.output_dir / 'section_5_6_owasp_top10_categories.csv'
+            self.owasp_top10_df.to_csv(output_path, index=False)
+            print(f"  ✓ Saved: {output_path}")
+            print(f"  ✓ Found {len(categories_list)} OWASP Top 10 categories")
+            print(f"  ✓ Total issues: {len(all_issues)}")
+
+        except Exception as e:
+            print(f"  ❌ Error fetching OWASP Top 10 data: {e}")
+            self.owasp_top10_df = pd.DataFrame()
+
+        return self.owasp_top10_df
+
     def generate_section_5_3_analysis(self):
         """Generate analysis for Section 5.3"""
         print("\n📈 Generating Section 5.3: Quality Issues Analysis...")
@@ -511,7 +639,44 @@ class SonarQubeAnalyzer:
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
-    
+
+    def generate_owasp_top10_analysis(self):
+        """Generate analysis for OWASP Top 10 - 2021"""
+        print("\n📈 Generating OWASP Top 10 - 2021 Analysis...")
+
+        if self.owasp_top10_df is None or self.owasp_top10_df.empty:
+            print("  ❌ No OWASP Top 10 data available")
+            return
+
+        # Overall summary
+        summary = {
+            'Total OWASP Categories': len(self.owasp_top10_df),
+            'Total Issues': int(self.owasp_top10_df['count'].sum()),
+            'Most Common Category': self.owasp_top10_df.iloc[0]['category_name'] if len(self.owasp_top10_df) > 0 else 'N/A',
+            'Most Common Category Count': int(self.owasp_top10_df.iloc[0]['count']) if len(self.owasp_top10_df) > 0 else 0,
+            'Most Common Category %': float(self.owasp_top10_df.iloc[0]['percentage']) if len(self.owasp_top10_df) > 0 else 0.0,
+        }
+
+        # Save summary
+        summary_df = pd.DataFrame([summary]).T
+        summary_df.columns = ['Value']
+        summary_path = self.output_dir / 'section_5_6_owasp_top10_summary.csv'
+        summary_df.to_csv(summary_path)
+        print(f"  ✓ Saved: {summary_path}")
+
+        # Print summary
+        print("\n" + "="*60)
+        print("OWASP TOP 10 - 2021 SUMMARY")
+        print("="*60)
+        for metric, value in summary.items():
+            print(f"  {metric:35} : {value}")
+        print("="*60)
+
+        # Print top categories
+        print("\nTop OWASP Top 10 - 2021 Categories:")
+        for idx, row in self.owasp_top10_df.iterrows():
+            print(f"  {row['category_name']:10} : {int(row['count']):5} issues ({row['percentage']:5.1f}%)")
+
     def create_section_5_5_visualizations(self):
         """Create visualizations for Section 5.5 (Hotspots)"""
         print("\n🎨 Creating Section 5.5 visualizations...")
@@ -582,24 +747,98 @@ class SonarQubeAnalyzer:
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
-    
+
+    def create_owasp_top10_visualizations(self):
+        """Create visualizations for OWASP Top 10 - 2021"""
+        print("\n🎨 Creating OWASP Top 10 - 2021 visualizations...")
+
+        if self.owasp_top10_df is None or self.owasp_top10_df.empty:
+            print("  ⚠️ No OWASP Top 10 data available")
+            return
+
+        self.viz_owasp_top10_distribution()
+
+        print("  ✓ OWASP Top 10 - 2021 visualizations created")
+
+    def viz_owasp_top10_distribution(self):
+        """Visualization: OWASP Top 10 - 2021 distribution"""
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+
+        # Left: Bar chart (all categories)
+        categories = self.owasp_top10_df['category_name'].values
+        counts = self.owasp_top10_df['count'].values
+
+        bars = ax1.barh(range(len(categories)), counts, color='#e74c3c', alpha=0.8)
+
+        # Add value labels
+        for i, bar in enumerate(bars):
+            width = bar.get_width()
+            ax1.text(width, bar.get_y() + bar.get_height()/2,
+                    f' {int(width)} ({self.owasp_top10_df["percentage"].iloc[i]}%)',
+                    ha='left', va='center', fontsize=10, fontweight='bold')
+
+        ax1.set_yticks(range(len(categories)))
+        ax1.set_yticklabels(categories)
+        ax1.invert_yaxis()
+        ax1.set_xlabel('Number of Issues', fontsize=12)
+        ax1.set_title('OWASP Top 10 - 2021 Categories', fontsize=12, fontweight='bold')
+        ax1.grid(True, alpha=0.3, axis='x')
+
+        # Right: Pie chart (top 8 + others)
+        top8 = self.owasp_top10_df.head(8)
+        others_count = self.owasp_top10_df['count'].iloc[8:].sum() if len(self.owasp_top10_df) > 8 else 0
+
+        pie_labels = list(top8['category_name'].values)
+        pie_counts = list(top8['count'].values)
+
+        if others_count > 0:
+            pie_labels.append('Others')
+            pie_counts.append(others_count)
+
+        colors = ['#e74c3c', '#e67e22', '#f39c12', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6', '#e91e63', '#95a5a6']
+        explode = [0.05] * len(pie_labels)
+        if len(explode) > 0:
+            explode[0] = 0.1
+
+        wedges, texts, autotexts = ax2.pie(pie_counts, explode=explode, labels=pie_labels,
+                                            colors=colors[:len(pie_labels)], autopct='%1.1f%%',
+                                            shadow=True, startangle=90)
+
+        for autotext in autotexts:
+            autotext.set_color('white')
+            autotext.set_fontweight('bold')
+            autotext.set_fontsize(10)
+
+        ax2.set_title('Distribution by Category', fontsize=12, fontweight='bold')
+
+        plt.tight_layout()
+        save_path = self.output_dir / 'figure_5_9_owasp_top10_distribution.png'
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"  ✓ Saved: {save_path}")
+        plt.close()
+
     def run(self):
         """Run complete analysis"""
         print("="*60)
         print("SONARQUBE ANALYZER & VISUALIZER")
-        print("Sections 5.3 (Quality Issues) & 5.5 (Security Hotspots)")
+        print("Sections 5.3, 5.5, 5.6 (Quality Issues, Hotspots, OWASP)")
         print("="*60 + "\n")
         
         # Fetch data
         self.fetch_file_issues()
         self.fetch_hotspot_categories()
-        
+        self.fetch_owasp_top10()
+
         # Section 5.3 Analysis
         self.generate_section_5_3_analysis()
         self.create_section_5_3_visualizations()
-        
+
         # Section 5.5 Analysis
         self.create_section_5_5_visualizations()
+
+        # OWASP Top 10 - 2021 Analysis
+        self.generate_owasp_top10_analysis()
+        self.create_owasp_top10_visualizations()
         
         print("\n" + "="*60)
         print("✅ ANALYSIS COMPLETE")
@@ -612,11 +851,14 @@ class SonarQubeAnalyzer:
         print("    • section_5_3_issues_by_severity.csv")
         print("    • section_5_3_top20_problematic_files.csv")
         print("    • section_5_5_hotspot_categories.csv")
+        print("    • section_5_6_owasp_top10_categories.csv")
+        print("    • section_5_6_owasp_top10_summary.csv")
         print("\n  Visualizations:")
         print("    • figure_5_5_issues_by_quality_severity.png")
         print("    • figure_5_6_top10_files_issues.png")
         print("    • figure_5_7_issue_distribution.png")
         print("    • figure_5_8_hotspot_categories.png")
+        print("    • figure_5_9_owasp_top10_distribution.png")
 
 
 def main():
