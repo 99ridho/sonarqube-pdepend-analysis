@@ -64,7 +64,7 @@ class PdependAnalyzer:
                 file_elem = class_elem.find('file')
                 filename = file_elem.get('name') if file_elem is not None else 'unknown'
 
-                if "application/controller" not in filename:
+                if not any(value in filename for value in ["application/models", "application/controllers"]):
                     continue
                 
                 classes_data.append({
@@ -89,6 +89,7 @@ class PdependAnalyzer:
                         'method': method_elem.get('name'),
                         'ccn': int(method_elem.get('ccn', 0)),
                         'loc': int(method_elem.get('loc', 0)),
+                        'ncloc': int(method_elem.get('nloc', 0)),
                         'npath': int(method_elem.get('npath', 0)),
                     })
         
