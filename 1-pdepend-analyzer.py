@@ -312,7 +312,7 @@ class PdependAnalyzer:
         ccn_values = self.methods_df[self.methods_df['ccn'] > 0]['ccn']
         
         # Create histogram
-        n, bins, patches = ax.hist(ccn_values, bins=30, range=(0,60), color='skyblue', 
+        n, bins, patches = ax.hist(ccn_values, bins=30, color='skyblue', 
                                    edgecolor='black', alpha=0.7)
         
         # Color bars by threshold

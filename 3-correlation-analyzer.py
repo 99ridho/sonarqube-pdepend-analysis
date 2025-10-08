@@ -182,7 +182,7 @@ class CorrelationAnalyzer:
                 r = self.correlation_matrix.loc[complexity_metric, issue_metric]
                 p = self.pvalue_matrix.loc[complexity_metric, issue_metric]
 
-                if not np.isnan(r) and not np.isnan(p):
+                if not np.isnan(r) and not np.isnan(p) and p < 0.05:
                     significant_corrs.append({
                         'complexity_metric': complexity_metric,
                         'issue_metric': issue_metric,
