@@ -89,7 +89,7 @@ class PdependAnalyzer:
                         'method': method_elem.get('name'),
                         'ccn': int(method_elem.get('ccn', 0)),
                         'loc': int(method_elem.get('loc', 0)),
-                        'ncloc': int(method_elem.get('nloc', 0)),
+                        'ncloc': int(method_elem.get('ncloc', 0)),
                         'npath': int(method_elem.get('npath', 0)),
                     })
         
