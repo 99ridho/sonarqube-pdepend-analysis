@@ -206,7 +206,8 @@ class SonarQubeAnalyzer:
                 response = requests.get(hotspots_url, params={
                     'projectKey': self.project_key,
                     'ps': 500,
-                    'p': page
+                    'p': page,
+                    'files': ','.join(self.file_paths)
                 }, auth=self.auth, timeout=30)
 
                 response.raise_for_status()
@@ -710,12 +711,12 @@ class SonarQubeAnalyzer:
         ax1.set_yticklabels(categories)
         ax1.invert_yaxis()
         ax1.set_xlabel('Number of Hotspots', fontsize=12)
-        ax1.set_title('Top 10 Hotspot Categories', fontsize=12, fontweight='bold')
+        ax1.set_title('Security Hotspot Identified', fontsize=12, fontweight='bold')
         ax1.grid(True, alpha=0.3, axis='x')
         
-        # Right: Pie chart (top 5 + others)
-        top8 = self.hotspot_categories_df.head(5)
-        others_count = self.hotspot_categories_df['count'].iloc[5:].sum() if len(self.hotspot_categories_df) > 8 else 0
+        # Right: Pie chart (top 8 + others)
+        top8 = self.hotspot_categories_df.head(8)
+        others_count = self.hotspot_categories_df['count'].iloc[8:].sum() if len(self.hotspot_categories_df) > 8 else 0
 
         pie_labels = list(top8['category_name'].values)
         pie_counts = list(top8['count'].values)
