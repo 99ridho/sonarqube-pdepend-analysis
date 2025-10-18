@@ -734,7 +734,7 @@ class SonarQubeAnalyzer:
                                             shadow=True, startangle=90)
         
         for autotext in autotexts:
-            autotext.set_color('white')
+            autotext.set_color('black')
             autotext.set_fontweight('bold')
             autotext.set_fontsize(10)
         
