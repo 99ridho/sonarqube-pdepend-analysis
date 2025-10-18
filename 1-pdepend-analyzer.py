@@ -226,7 +226,10 @@ class PdependAnalyzer:
         
         # Figure 4: WMC vs NCLOC (Scatter)
         self.viz_wmc_vs_ncloc(complexity_df)
-        
+
+        # Figure 5: Complex Methods with CCN Threshold
+        self.viz_complex_methods()
+
         print("  ✓ All visualizations created")
     
     def viz_complexity_distribution(self, df):
@@ -304,7 +307,59 @@ class PdependAnalyzer:
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
-    
+
+    def viz_complex_methods(self):
+        """Visualization: Complex methods with CCN threshold reference"""
+        fig, ax = plt.subplots(figsize=(12, 8))
+
+        # Filter methods with CCN > 30 (same logic as CSV export at line 195)
+        complex_methods = self.methods_df[self.methods_df['ccn'] > 30].sort_values('ccn', ascending=False)
+
+        # Take top 20 for visualization
+        top_methods = complex_methods.head(20)
+
+        # Create method labels with class context
+        method_labels = [f"{row['class']}::{row['method']}" for _, row in top_methods.iterrows()]
+        ccn_values = top_methods['ccn'].values
+
+        # Create horizontal bar chart
+        y_pos = np.arange(len(method_labels))
+        bars = ax.barh(y_pos, ccn_values, color='steelblue', alpha=0.8)
+
+        # Add value labels on bars
+        for i, bar in enumerate(bars):
+            width = bar.get_width()
+            ax.text(width, bar.get_y() + bar.get_height()/2,
+                   f' {int(width)}',
+                   ha='left', va='center', fontsize=9, fontweight='bold')
+
+        # Add CCN=15 threshold line for reference
+        threshold = 15
+        ax.axvline(x=threshold, color='red', linestyle='--', linewidth=2,
+                  label=f'Threshold (CCN={threshold})')
+
+        # Add statistics text box
+        stats_text = (f"Total Methods (CCN>30): {len(complex_methods)}\n"
+                     f"Mean CCN: {complex_methods['ccn'].mean():.1f}\n"
+                     f"Median CCN: {complex_methods['ccn'].median():.1f}\n"
+                     f"Max CCN: {complex_methods['ccn'].max():.0f}")
+        ax.text(0.98, 0.02, stats_text, transform=ax.transAxes,
+               fontsize=10, verticalalignment='bottom', horizontalalignment='right',
+               bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(method_labels, fontsize=9)
+        ax.invert_yaxis()
+        ax.set_xlabel('Cyclomatic Complexity (CCN)', fontsize=12)
+        ax.legend(loc='upper right')
+        ax.grid(True, alpha=0.3, axis='x')
+
+        plt.tight_layout()
+        save_path = self.output_dir / 'figure_5_5_complex_methods_ccn15.png'
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"  ✓ Saved: {save_path}")
+        plt.close()
+
     def viz_method_complexity_histogram(self):
         """Visualization: Method complexity histogram"""
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -434,6 +489,7 @@ class PdependAnalyzer:
         print("    • figure_5_2_top10_complex_files.png")
         print("    • figure_5_3_method_complexity_histogram.png")
         print("    • figure_5_4_wmc_vs_ncloc.png")
+        print("    • figure_5_5_complex_methods_ccn15.png")
 
 
 def main():
