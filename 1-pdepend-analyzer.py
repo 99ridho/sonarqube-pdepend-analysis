@@ -333,8 +333,8 @@ class PdependAnalyzer:
                    f' {int(width)}',
                    ha='left', va='center', fontsize=9, fontweight='bold')
 
-        # Add CCN=15 threshold line for reference
-        threshold = 15
+        # Add CCN=30 threshold line for reference
+        threshold = 30
         ax.axvline(x=threshold, color='red', linestyle='--', linewidth=2,
                   label=f'Threshold (CCN={threshold})')
 
