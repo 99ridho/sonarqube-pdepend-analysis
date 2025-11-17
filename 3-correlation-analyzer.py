@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Correlation Analysis Script for Research Paper Section 5.4
+Correlation Analysis Script
 
 This script calculates Pearson correlation coefficients between:
-- PDépend complexity metrics (Section 5.2)
-- SonarQube quality issues (Section 5.3)
+- PDépend complexity metrics
+- SonarQube quality issues
 
 Generates:
 - Full correlation matrix with p-values

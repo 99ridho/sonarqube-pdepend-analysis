@@ -4,3 +4,4 @@ output_sonarqube
 output_correlation
 __pycache__
 config.json
+.DS_Store

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
 SonarQube Analyzer & Visualizer
-For Research Paper Sections 5.3, 5.5, and 5.6
-- Section 5.3: Quality Issues
-- Section 5.5: Security Hotspots
-- Section 5.6: OWASP Top 10 - 2021 Analysis
+For Research Paper Sections
+- Quality Issues
+- Security Hotspots
+- OWASP Top 10 - 2021 Analysis
 Input: File paths list + SonarQube API access
 """
 
@@ -41,7 +41,7 @@ class SonarQubeAnalyzer:
         self.overall_stats = None
     
     def fetch_file_issues(self):
-        """Fetch issues for specific files (Section 5.3)"""
+        """Fetch issues for specific files"""
         print("📊 Fetching file-level issues from SonarQube...")
         
         if not self.file_paths:
@@ -193,7 +193,7 @@ class SonarQubeAnalyzer:
         return files
     
     def fetch_hotspot_categories(self):
-        """Fetch security hotspot categories (Section 5.5)"""
+        """Fetch security hotspot categories"""
         print("\n📊 Fetching security hotspots...")
 
         hotspots_url = f"{self.base_url}/hotspots/search"
@@ -394,9 +394,9 @@ class SonarQubeAnalyzer:
 
         return self.owasp_top10_df
 
-    def generate_section_5_3_analysis(self):
-        """Generate analysis for Section 5.3"""
-        print("\n📈 Generating Section 5.3: Quality Issues Analysis...")
+    def generate_quality_issues_analysis(self):
+        """Generate analysis for Quality Issues"""
+        print("\n📈 Generating Quality Issues Analysis...")
         
         if self.file_issues_df is None:
             print("  ❌ No file issues data available")
@@ -464,15 +464,15 @@ class SonarQubeAnalyzer:
         
         # Print summary
         print("\n" + "="*60)
-        print("SECTION 5.3: QUALITY ISSUES SUMMARY")
+        print("QUALITY ISSUES SUMMARY")
         print("="*60)
         for metric, value in summary.items():
             print(f"  {metric:35} : {value}")
         print("="*60)
     
-    def create_section_5_3_visualizations(self):
-        """Create visualizations for Section 5.3"""
-        print("\n🎨 Creating Section 5.3 visualizations...")
+    def create_quality_issues_visualizations(self):
+        """Create quality severity, top 10 file issues and issues distribution visualizations"""
+        print("\n🎨 Creating quality visualizations...")
         
         # Figure 1: Issues by Quality Aspect (Stacked Bar)
         self.viz_issues_by_quality_severity()
@@ -483,7 +483,7 @@ class SonarQubeAnalyzer:
         # Figure 3: Issue Distribution (Pie Chart)
         self.viz_issue_distribution_pie()
         
-        print("  ✓ Section 5.3 visualizations created")
+        print("  ✓ Quality visualizations created")
     
     def viz_issues_by_quality_severity(self):
         """Visualization: Issues by quality and severity"""
@@ -678,9 +678,9 @@ class SonarQubeAnalyzer:
         for idx, row in self.owasp_top10_df.iterrows():
             print(f"  {row['category_name']:10} : {int(row['count']):5} issues ({row['percentage']:5.1f}%)")
 
-    def create_section_5_5_visualizations(self):
-        """Create visualizations for Section 5.5 (Hotspots)"""
-        print("\n🎨 Creating Section 5.5 visualizations...")
+    def create_security_hotspot_visualizations(self):
+        """Create visualizations for Security Hotspots"""
+        print("\n🎨 Creating Security Hotspots visualizations...")
         
         if self.hotspot_categories_df is None or self.hotspot_categories_df.empty:
             print("  ⚠️ No hotspot data available")
@@ -688,7 +688,7 @@ class SonarQubeAnalyzer:
         
         self.viz_hotspot_categories()
         
-        print("  ✓ Section 5.5 visualizations created")
+        print("  ✓ Security Hotspots visualizations created")
     
     def viz_hotspot_categories(self):
         """Visualization: Security hotspot categories"""
@@ -822,7 +822,7 @@ class SonarQubeAnalyzer:
         """Run complete analysis"""
         print("="*60)
         print("SONARQUBE ANALYZER & VISUALIZER")
-        print("Sections 5.3, 5.5, 5.6 (Quality Issues, Hotspots, OWASP)")
+        print("Quality Issues, Hotspots, OWASP sections")
         print("="*60 + "\n")
         
         # Fetch data
@@ -830,12 +830,12 @@ class SonarQubeAnalyzer:
         self.fetch_hotspot_categories()
         self.fetch_owasp_top10()
 
-        # Section 5.3 Analysis
-        self.generate_section_5_3_analysis()
-        self.create_section_5_3_visualizations()
+        # Quality Issues Analysis
+        self.generate_quality_issues_analysis()
+        self.create_quality_issues_visualizations()
 
-        # Section 5.5 Analysis
-        self.create_section_5_5_visualizations()
+        # Security Hotspot Analysis
+        self.create_security_hotspot_visualizations()
 
         # OWASP Top 10 - 2021 Analysis
         self.generate_owasp_top10_analysis()

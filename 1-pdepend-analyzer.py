@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 PDépend Analyzer & Visualizer
-For Research Paper Sections 5.1 (Descriptive Statistics) and 5.2 (Complexity Analysis)
+For Research Paper Descriptive Statistics and Complexity Analysis Sections
 Input: summary.xml from PDépend
 """
 
@@ -100,9 +100,9 @@ class PdependAnalyzer:
         print(f"  ✓ Parsed {len(self.classes_df)} classes")
         print(f"  ✓ Parsed {len(self.methods_df)} methods")
     
-    def generate_section_5_1_descriptive_stats(self):
-        """Generate descriptive statistics for Section 5.1"""
-        print("\n📈 Generating Section 5.1: Descriptive Statistics...")
+    def generate_descriptive_stats(self):
+        """Generate descriptive statistics"""
+        print("\n📈 Generating Descriptive Statistics...")
         
         # Calculate aggregate metrics
         stats = {
@@ -129,7 +129,7 @@ class PdependAnalyzer:
         
         # Create summary table
         print("\n" + "="*60)
-        print("SECTION 5.1: DESCRIPTIVE STATISTICS OVERVIEW")
+        print("DESCRIPTIVE STATISTICS OVERVIEW")
         print("="*60)
         for metric, value in stats.items():
             print(f"  {metric:30} : {value}")
@@ -137,9 +137,9 @@ class PdependAnalyzer:
         
         return stats
     
-    def generate_section_5_2_complexity_analysis(self):
-        """Generate complexity analysis for Section 5.2"""
-        print("\n📈 Generating Section 5.2: Complexity Analysis...")
+    def generate_complexity_analysis(self):
+        """Generate complexity analysis"""
+        print("\n📈 Generating Complexity Analysis...")
         
         # File-level complexity distribution
         file_complexity = self.files_df[['file', 'ncloc', 'lloc']].drop_duplicates(subset=['file'], keep='first')
@@ -458,17 +458,17 @@ class PdependAnalyzer:
         """Run complete analysis"""
         print("="*60)
         print("PDépend ANALYZER & VISUALIZER")
-        print("Sections 5.1 (Descriptive Statistics) & 5.2 (Complexity)")
+        print("Descriptive Statistics and Complexity")
         print("="*60 + "\n")
         
         # Parse XML
         self.parse_pdepend_xml()
         
-        # Section 5.1
-        self.generate_section_5_1_descriptive_stats()
+        # Descriptive Statistics
+        self.generate_descriptive_stats()
         
-        # Section 5.2
-        complexity_df = self.generate_section_5_2_complexity_analysis()
+        # Complexity Analysis
+        complexity_df = self.generate_complexity_analysis()
         
         # Create visualizations
         self.create_visualizations(complexity_df)
