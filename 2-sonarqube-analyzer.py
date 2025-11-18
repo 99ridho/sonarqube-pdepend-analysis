@@ -148,7 +148,7 @@ class SonarQubeAnalyzer:
         self.file_issues_df = pd.DataFrame(file_data)
         
         # Save results
-        output_path = self.output_dir / 'section_5_3_file_issues.csv'
+        output_path = self.output_dir / 'file_issues.csv'
         self.file_issues_df.to_csv(output_path, index=False)
         print(f"  ✓ Saved: {output_path}")
         print(f"  ✓ Processed {len(file_data)} files")
@@ -258,7 +258,7 @@ class SonarQubeAnalyzer:
                 self.hotspot_categories_df['percentage'] = (self.hotspot_categories_df['count'] / total * 100).round(1)
 
             # Save results
-            output_path = self.output_dir / 'section_5_5_hotspot_categories.csv'
+            output_path = self.output_dir / 'hotspot_categories.csv'
             self.hotspot_categories_df.to_csv(output_path, index=False)
             print(f"  ✓ Saved: {output_path}")
             print(f"  ✓ Found {len(categories)} hotspot categories")
@@ -382,7 +382,7 @@ class SonarQubeAnalyzer:
                 self.owasp_top10_df['percentage'] = (self.owasp_top10_df['count'] / total * 100).round(1)
 
             # Save results
-            output_path = self.output_dir / 'section_5_6_owasp_top10_categories.csv'
+            output_path = self.output_dir / 'owasp_top10_categories.csv'
             self.owasp_top10_df.to_csv(output_path, index=False)
             print(f"  ✓ Saved: {output_path}")
             print(f"  ✓ Found {len(categories_list)} OWASP Top 10 categories")
@@ -421,7 +421,7 @@ class SonarQubeAnalyzer:
         # Save summary
         summary_df = pd.DataFrame([summary]).T
         summary_df.columns = ['Value']
-        summary_path = self.output_dir / 'section_5_3_overall_summary.csv'
+        summary_path = self.output_dir / 'overall_summary.csv'
         summary_df.to_csv(summary_path)
         print(f"  ✓ Saved: {summary_path}")
         
@@ -450,7 +450,7 @@ class SonarQubeAnalyzer:
         }
         
         severity_df = pd.DataFrame(severity_data).T
-        severity_path = self.output_dir / 'section_5_3_issues_by_severity.csv'
+        severity_path = self.output_dir / 'issues_by_severity.csv'
         severity_df.to_csv(severity_path)
         print(f"  ✓ Saved: {severity_path}")
         
@@ -458,7 +458,7 @@ class SonarQubeAnalyzer:
         top20 = self.file_issues_df.nlargest(20, 'total_issues')[[
             'file', 'total_security', 'total_reliability', 'total_maintainability', 'total_issues'
         ]]
-        top20_path = self.output_dir / 'section_5_3_top20_problematic_files.csv'
+        top20_path = self.output_dir / 'top20_problematic_files.csv'
         top20.to_csv(top20_path, index=False)
         print(f"  ✓ Saved: {top20_path}")
         
@@ -536,7 +536,7 @@ class SonarQubeAnalyzer:
         ax.grid(True, alpha=0.3, axis='y')
         
         plt.tight_layout()
-        save_path = self.output_dir / 'figure_5_5_issues_by_quality_severity.png'
+        save_path = self.output_dir / 'issues_by_quality_severity.png'
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
@@ -578,7 +578,7 @@ class SonarQubeAnalyzer:
         ax.grid(True, alpha=0.3, axis='x')
         
         plt.tight_layout()
-        save_path = self.output_dir / 'figure_5_6_top10_files_issues.png'
+        save_path = self.output_dir / 'top10_files_issues.png'
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
@@ -632,11 +632,8 @@ class SonarQubeAnalyzer:
         
         ax2.set_title('By Severity Level', fontsize=12, fontweight='bold')
         
-        # fig.suptitle('Figure 5.7: Overall Issue Distribution', 
-        #             fontsize=14, fontweight='bold', y=1.02)
-        
         plt.tight_layout()
-        save_path = self.output_dir / 'figure_5_7_issue_distribution.png'
+        save_path = self.output_dir / 'issue_distribution.png'
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
@@ -661,7 +658,7 @@ class SonarQubeAnalyzer:
         # Save summary
         summary_df = pd.DataFrame([summary]).T
         summary_df.columns = ['Value']
-        summary_path = self.output_dir / 'section_5_6_owasp_top10_summary.csv'
+        summary_path = self.output_dir / 'owasp_top10_summary.csv'
         summary_df.to_csv(summary_path)
         print(f"  ✓ Saved: {summary_path}")
 
@@ -740,11 +737,8 @@ class SonarQubeAnalyzer:
         
         ax2.set_title('Distribution by Category', fontsize=12, fontweight='bold')
         
-        # fig.suptitle('Figure 5.8: Security Hotspot Categorization',
-        #             fontsize=14, fontweight='bold', y=1.00)
-        
         plt.tight_layout()
-        save_path = self.output_dir / 'figure_5_8_hotspot_categories.png'
+        save_path = self.output_dir / 'hotspot_categories.png'
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
@@ -813,7 +807,7 @@ class SonarQubeAnalyzer:
         ax2.set_title('Distribution by Category', fontsize=12, fontweight='bold')
 
         plt.tight_layout()
-        save_path = self.output_dir / 'figure_5_9_owasp_top10_distribution.png'
+        save_path = self.output_dir / 'owasp_top10_distribution.png'
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
@@ -847,19 +841,19 @@ class SonarQubeAnalyzer:
         print(f"\n📁 Output directory: {self.output_dir.absolute()}")
         print("\n📊 Generated files:")
         print("  Data Files:")
-        print("    • section_5_3_file_issues.csv")
-        print("    • section_5_3_overall_summary.csv")
-        print("    • section_5_3_issues_by_severity.csv")
-        print("    • section_5_3_top20_problematic_files.csv")
-        print("    • section_5_5_hotspot_categories.csv")
-        print("    • section_5_6_owasp_top10_categories.csv")
-        print("    • section_5_6_owasp_top10_summary.csv")
+        print("    • file_issues.csv")
+        print("    • overall_summary.csv")
+        print("    • issues_by_severity.csv")
+        print("    • top20_problematic_files.csv")
+        print("    • hotspot_categories.csv")
+        print("    • owasp_top10_categories.csv")
+        print("    • owasp_top10_summary.csv")
         print("\n  Visualizations:")
-        print("    • figure_5_5_issues_by_quality_severity.png")
-        print("    • figure_5_6_top10_files_issues.png")
-        print("    • figure_5_7_issue_distribution.png")
-        print("    • figure_5_8_hotspot_categories.png")
-        print("    • figure_5_9_owasp_top10_distribution.png")
+        print("    • issues_by_quality_severity.png")
+        print("    • top10_files_issues.png")
+        print("    • issue_distribution.png")
+        print("    • hotspot_categories.png")
+        print("    • owasp_top10_distribution.png")
 
 
 def main():

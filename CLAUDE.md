@@ -106,13 +106,13 @@ python 2-sonarqube-analyzer.py
 
 **PDépend Outputs (output_pdepend/):**
 
-- CSV: `section_5_1_descriptive_statistics.csv`, `section_5_2_complexity_data.csv`, `section_5_2_complexity_distribution.csv`, `section_5_2_top10_complex_files.csv`, `section_5_2_complex_methods_ccn30.csv`
-- Figures: `figure_5_1_complexity_distribution.png` (box plots), `figure_5_2_top10_complex_files.png` (horizontal bars), `figure_5_3_method_complexity_histogram.png` (histogram with thresholds), `figure_5_4_wmc_vs_ncloc.png` (scatter with annotations)
+- CSV: `descriptive_statistics.csv`, `complexity_data.csv`, `complexity_distribution.csv`, `top10_complex_files.csv`, `complex_methods_ccn30.csv`
+- Figures: `complexity_distribution.png` (box plots), `top10_complex_files.png` (horizontal bars), `method_complexity_histogram.png` (histogram with thresholds), `wmc_vs_ncloc.png` (scatter with annotations)
 
 **SonarQube Outputs (output_sonarqube/):**
 
-- CSV: `section_5_3_file_issues.csv`, `section_5_3_overall_summary.csv`, `section_5_3_issues_by_severity.csv`, `section_5_3_top20_problematic_files.csv`, `section_5_5_hotspot_categories.csv`
-- Figures: `figure_5_5_issues_by_quality_severity.png` (grouped bars), `figure_5_6_top10_files_issues.png` (stacked horizontal bars), `figure_5_7_issue_distribution.png` (dual pie charts), `figure_5_8_hotspot_categories.png` (bar + pie combo, if hotspots exist)
+- CSV: `file_issues.csv`, `overall_summary.csv`, `issues_by_severity.csv`, `top20_problematic_files.csv`, `hotspot_categories.csv`
+- Figures: `issues_by_quality_severity.png` (grouped bars), `top10_files_issues.png` (stacked horizontal bars), `issue_distribution.png` (dual pie charts), `hotspot_categories.png` (bar + pie combo, if hotspots exist)
 
 ## Important Implementation Details
 

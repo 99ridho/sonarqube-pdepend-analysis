@@ -123,7 +123,7 @@ class PdependAnalyzer:
         # Save to CSV
         stats_df = pd.DataFrame([stats]).T
         stats_df.columns = ['Value']
-        stats_path = self.output_dir / 'section_5_1_descriptive_statistics.csv'
+        stats_path = self.output_dir / 'descriptive_statistics.csv'
         stats_df.to_csv(stats_path)
         print(f"  ✓ Saved: {stats_path}")
         
@@ -168,7 +168,7 @@ class PdependAnalyzer:
         complexity_df = complexity_df.sort_values('wmc', ascending=False)
         
         # Save full complexity data
-        complexity_path = self.output_dir / 'section_5_2_complexity_data.csv'
+        complexity_path = self.output_dir / 'complexity_data.csv'
         complexity_df.to_csv(complexity_path, index=False)
         print(f"  ✓ Saved: {complexity_path}")
 
@@ -181,19 +181,19 @@ class PdependAnalyzer:
         }
         
         dist_df = pd.DataFrame(distribution).T
-        dist_path = self.output_dir / 'section_5_2_complexity_distribution.csv'
+        dist_path = self.output_dir / 'complexity_distribution.csv'
         dist_df.to_csv(dist_path)
         print(f"  ✓ Saved: {dist_path}")
         
         # Top 10 complex files
         top10 = complexity_df.head(10)[['file', 'ncloc', 'lloc', 'wmc', 'nom', 'cbo']]
-        top10_path = self.output_dir / 'section_5_2_top10_complex_files.csv'
+        top10_path = self.output_dir / 'top10_complex_files.csv'
         top10.to_csv(top10_path, index=False)
         print(f"  ✓ Saved: {top10_path}")
         
         # Methods with high complexity
         complex_methods = self.methods_df[self.methods_df['ccn'] > 30].sort_values('ccn', ascending=False)
-        complex_methods_path = self.output_dir / 'section_5_2_complex_methods_ccn30.csv'
+        complex_methods_path = self.output_dir / 'complex_methods_ccn30.csv'
         complex_methods.to_csv(complex_methods_path, index=False)
         print(f"  ✓ Saved: {complex_methods_path}")
         
@@ -262,7 +262,7 @@ class PdependAnalyzer:
             ax.grid(True, alpha=0.3, axis='y')
         
         plt.tight_layout()
-        save_path = self.output_dir / 'figure_5_1_complexity_distribution.png'
+        save_path = self.output_dir / 'complexity_distribution.png'
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
@@ -303,7 +303,7 @@ class PdependAnalyzer:
         ax.grid(True, alpha=0.3, axis='x')
         
         plt.tight_layout()
-        save_path = self.output_dir / 'figure_5_2_top10_complex_files.png'
+        save_path = self.output_dir / 'top10_complex_files.png'
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
@@ -355,7 +355,7 @@ class PdependAnalyzer:
         ax.grid(True, alpha=0.3, axis='x')
 
         plt.tight_layout()
-        save_path = self.output_dir / 'figure_5_5_complex_methods_ccn15.png'
+        save_path = self.output_dir / 'complex_methods_ccn15.png'
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
@@ -403,7 +403,7 @@ class PdependAnalyzer:
         ax.grid(True, alpha=0.3, axis='y')
         
         plt.tight_layout()
-        save_path = self.output_dir / 'figure_5_3_method_complexity_histogram.png'
+        save_path = self.output_dir / 'method_complexity_histogram.png'
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
@@ -449,7 +449,7 @@ class PdependAnalyzer:
         ax.grid(True, alpha=0.3)
         
         plt.tight_layout()
-        save_path = self.output_dir / 'figure_5_4_wmc_vs_ncloc.png'
+        save_path = self.output_dir / 'wmc_vs_ncloc.png'
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
@@ -479,17 +479,17 @@ class PdependAnalyzer:
         print(f"\n📁 Output directory: {self.output_dir.absolute()}")
         print("\n📊 Generated files:")
         print("  Data Files:")
-        print("    • section_5_1_descriptive_statistics.csv")
-        print("    • section_5_2_complexity_data.csv")
-        print("    • section_5_2_complexity_distribution.csv")
-        print("    • section_5_2_top10_complex_files.csv")
-        print("    • section_5_2_complex_methods_ccn30.csv")
+        print("    • descriptive_statistics.csv")
+        print("    • complexity_data.csv")
+        print("    • complexity_distribution.csv")
+        print("    • top10_complex_files.csv")
+        print("    • complex_methods_ccn30.csv")
         print("\n  Visualizations:")
-        print("    • figure_5_1_complexity_distribution.png")
-        print("    • figure_5_2_top10_complex_files.png")
-        print("    • figure_5_3_method_complexity_histogram.png")
-        print("    • figure_5_4_wmc_vs_ncloc.png")
-        print("    • figure_5_5_complex_methods_ccn15.png")
+        print("    • complexity_distribution.png")
+        print("    • top10_complex_files.png")
+        print("    • method_complexity_histogram.png")
+        print("    • wmc_vs_ncloc.png")
+        print("    • complex_methods_ccn15.png")
 
 
 def main():

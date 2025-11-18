@@ -31,8 +31,8 @@ class CorrelationAnalyzer:
         Initialize the analyzer.
 
         Args:
-            pdepend_csv: Path to section_5_2_complexity_data.csv
-            sonarqube_csv: Path to section_5_3_file_issues.csv
+            pdepend_csv: Path to complexity_data.csv
+            sonarqube_csv: Path to file_issues.csv
             output_dir: Directory for output files
         """
         self.pdepend_csv = pdepend_csv
@@ -247,7 +247,7 @@ class CorrelationAnalyzer:
         plt.tight_layout()
 
         # Save figure
-        output_file = self.output_dir / 'figure_correlation_heatmap.png'
+        output_file = self.output_dir / 'correlation_heatmap.png'
         plt.savefig(output_file, dpi=300, bbox_inches='tight')
         print(f"Saved: {output_file}")
 
@@ -304,8 +304,8 @@ class CorrelationAnalyzer:
 def main():
     """Main entry point."""
     # File paths
-    pdepend_csv = 'output_pdepend/section_5_2_complexity_data.csv'
-    sonarqube_csv = 'output_sonarqube/section_5_3_file_issues.csv'
+    pdepend_csv = 'output_pdepend/complexity_data.csv'
+    sonarqube_csv = 'output_sonarqube/file_issues.csv'
 
     # Create analyzer
     analyzer = CorrelationAnalyzer(pdepend_csv, sonarqube_csv)
