@@ -38,6 +38,7 @@ class SonarQubeAnalyzer:
         self.file_issues_df = None
         self.hotspot_categories_df = None
         self.owasp_top10_df = None
+        self.detailed_issues_df = None
         self.overall_stats = None
     
     def fetch_file_issues(self):
@@ -154,7 +155,120 @@ class SonarQubeAnalyzer:
         print(f"  ✓ Processed {len(file_data)} files")
         
         return self.file_issues_df
-    
+
+    def fetch_all_issues_detailed(self):
+        """Fetch all individual issues with comprehensive details"""
+        print("📊 Fetching detailed issues from SonarQube...")
+
+        if not self.file_paths:
+            print("  ℹ️  No specific files provided, fetching all project files...")
+            self.file_paths = self._get_all_project_files()
+
+        all_issues = []
+        issues_url = f"{self.base_url}/issues/search"
+
+        for idx, filepath in enumerate(self.file_paths):
+            if idx % 10 == 0:
+                print(f"    Processing {idx+1}/{len(self.file_paths)}...")
+
+            # Build component key
+            component_key = f"{self.project_key}:{filepath}"
+
+            # Fetch all issues for this file with pagination
+            page = 1
+            while True:
+                try:
+                    response = requests.get(issues_url, params={
+                        'componentKeys': component_key,
+                        'resolved': 'false',
+                        'ps': 500,
+                        'p': page
+                    }, auth=self.auth, timeout=10)
+
+                    if response.status_code != 200:
+                        break
+
+                    data = response.json()
+
+                    if 'issues' not in data or len(data['issues']) == 0:
+                        break
+
+                    # Process each issue
+                    for issue in data['issues']:
+                        # Extract comprehensive fields
+                        issue_details = {
+                            'file': filepath,
+                            'key': issue.get('key', ''),
+                            'rule': issue.get('rule', ''),
+                            'component': issue.get('component', ''),
+                            'project': issue.get('project', ''),
+                            'message': issue.get('message', ''),
+                            'line': issue.get('line', ''),
+                            'status': issue.get('status', ''),
+                            'resolution': issue.get('resolution', ''),
+                            'type': issue.get('type', ''),
+                            'severity': issue.get('severity', ''),
+                            'author': issue.get('author', ''),
+                            'creationDate': issue.get('creationDate', ''),
+                            'updateDate': issue.get('updateDate', ''),
+                            'effort': issue.get('effort', ''),
+                            'debt': issue.get('debt', ''),
+                            'tags': ','.join(issue.get('tags', [])),
+                            'textRange_startLine': issue.get('textRange', {}).get('startLine', ''),
+                            'textRange_endLine': issue.get('textRange', {}).get('endLine', ''),
+                            'textRange_startOffset': issue.get('textRange', {}).get('startOffset', ''),
+                            'textRange_endOffset': issue.get('textRange', {}).get('endOffset', ''),
+                        }
+
+                        # Handle MQR mode impacts (if available)
+                        impacts = issue.get('impacts', [])
+                        if impacts:
+                            # Store impacts as separate fields
+                            for impact in impacts:
+                                quality = impact.get('softwareQuality', '').lower()
+                                severity = impact.get('severity', '').lower()
+                                issue_details[f'impact_{quality}'] = severity
+
+                        # Additional fields that might be present
+                        if 'assignee' in issue:
+                            issue_details['assignee'] = issue['assignee']
+                        if 'closeDate' in issue:
+                            issue_details['closeDate'] = issue['closeDate']
+                        if 'hash' in issue:
+                            issue_details['hash'] = issue['hash']
+                        if 'scope' in issue:
+                            issue_details['scope'] = issue['scope']
+                        if 'flows' in issue:
+                            issue_details['flows_count'] = len(issue['flows'])
+
+                        all_issues.append(issue_details)
+
+                    page += 1
+                    if page > 10:  # Safety limit
+                        break
+
+                except Exception as e:
+                    print(f"    ⚠️ Error fetching detailed issues for {filepath}: {e}")
+                    break
+
+            # Rate limiting
+            if idx % 50 == 0 and idx > 0:
+                time.sleep(0.5)
+
+        # Convert to DataFrame
+        self.detailed_issues_df = pd.DataFrame(all_issues)
+
+        # Save results
+        if not self.detailed_issues_df.empty:
+            output_path = self.output_dir / 'all_issues_detailed.csv'
+            self.detailed_issues_df.to_csv(output_path, index=False)
+            print(f"  ✓ Saved: {output_path}")
+            print(f"  ✓ Total issues fetched: {len(all_issues)}")
+        else:
+            print("  ⚠️ No issues found")
+
+        return self.detailed_issues_df
+
     def _get_all_project_files(self):
         """Get all files in the project"""
         measures_url = f"{self.base_url}/measures/component_tree"
@@ -821,6 +935,7 @@ class SonarQubeAnalyzer:
         
         # Fetch data
         self.fetch_file_issues()
+        self.fetch_all_issues_detailed()
         self.fetch_hotspot_categories()
         self.fetch_owasp_top10()
 
