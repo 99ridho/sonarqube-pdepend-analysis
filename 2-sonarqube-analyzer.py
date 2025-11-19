@@ -39,6 +39,7 @@ class SonarQubeAnalyzer:
         self.hotspot_categories_df = None
         self.owasp_top10_df = None
         self.detailed_issues_df = None
+        self.detailed_hotspots_df = None
         self.overall_stats = None
     
     def fetch_file_issues(self):
@@ -383,6 +384,114 @@ class SonarQubeAnalyzer:
             self.hotspot_categories_df = pd.DataFrame()
 
         return self.hotspot_categories_df
+
+    def fetch_all_hotspots_detailed(self):
+        """Fetch all security hotspots with comprehensive details"""
+        print("\n📊 Fetching detailed security hotspots from SonarQube...")
+
+        hotspots_url = f"{self.base_url}/hotspots/search"
+        all_hotspots_detailed = []
+        page = 1
+
+        try:
+            while True:
+                # Prepare parameters
+                params = {
+                    'projectKey': self.project_key,
+                    'ps': 500,
+                    'p': page
+                }
+
+                # Optionally filter by specific files
+                if self.file_paths:
+                    params['files'] = ','.join(self.file_paths)
+
+                response = requests.get(hotspots_url, params=params, auth=self.auth, timeout=30)
+                response.raise_for_status()
+                data = response.json()
+
+                hotspots = data.get('hotspots', [])
+                if not hotspots:
+                    break
+
+                # Process each hotspot
+                for hotspot in hotspots:
+                    # Extract file path from component key
+                    component = hotspot.get('component', '')
+                    file_path = component.replace(f"{self.project_key}:", '') if ':' in component else component
+
+                    # Extract comprehensive fields
+                    hotspot_details = {
+                        'file': file_path,
+                        'key': hotspot.get('key', ''),
+                        'component': component,
+                        'project': hotspot.get('project', ''),
+                        'securityCategory': hotspot.get('securityCategory', ''),
+                        'vulnerabilityProbability': hotspot.get('vulnerabilityProbability', ''),
+                        'status': hotspot.get('status', ''),
+                        'resolution': hotspot.get('resolution', ''),
+                        'line': hotspot.get('line', ''),
+                        'message': hotspot.get('message', ''),
+                        'author': hotspot.get('author', ''),
+                        'creationDate': hotspot.get('creationDate', ''),
+                        'updateDate': hotspot.get('updateDate', ''),
+                        'ruleKey': hotspot.get('ruleKey', ''),
+                    }
+
+                    # Text range details
+                    text_range = hotspot.get('textRange', {})
+                    if text_range:
+                        hotspot_details['textRange_startLine'] = text_range.get('startLine', '')
+                        hotspot_details['textRange_endLine'] = text_range.get('endLine', '')
+                        hotspot_details['textRange_startOffset'] = text_range.get('startOffset', '')
+                        hotspot_details['textRange_endOffset'] = text_range.get('endOffset', '')
+
+                    # Additional optional fields
+                    if 'assignee' in hotspot:
+                        hotspot_details['assignee'] = hotspot['assignee']
+                    if 'hash' in hotspot:
+                        hotspot_details['hash'] = hotspot['hash']
+                    if 'scope' in hotspot:
+                        hotspot_details['scope'] = hotspot['scope']
+                    if 'reviewPriority' in hotspot:
+                        hotspot_details['reviewPriority'] = hotspot['reviewPriority']
+                    if 'flows' in hotspot:
+                        hotspot_details['flows_count'] = len(hotspot['flows'])
+
+                    all_hotspots_detailed.append(hotspot_details)
+
+                # Check pagination
+                paging = data.get('paging', {})
+                total_pages = (paging.get('total', 0) + 499) // 500
+
+                print(f"  ✓ Fetched page {page}/{total_pages} ({len(hotspots)} hotspots)")
+
+                if page >= total_pages:
+                    break
+
+                page += 1
+
+                # Safety limit
+                if page > 100:
+                    print("  ⚠️ Reached page limit (100), stopping...")
+                    break
+
+        except Exception as e:
+            print(f"  ❌ Error fetching detailed hotspots: {e}")
+
+        # Convert to DataFrame
+        self.detailed_hotspots_df = pd.DataFrame(all_hotspots_detailed)
+
+        # Save results
+        if not self.detailed_hotspots_df.empty:
+            output_path = self.output_dir / 'all_hotspots_detailed.csv'
+            self.detailed_hotspots_df.to_csv(output_path, index=False)
+            print(f"  ✓ Saved: {output_path}")
+            print(f"  ✓ Total hotspots fetched: {len(all_hotspots_detailed)}")
+        else:
+            print("  ⚠️ No hotspots found")
+
+        return self.detailed_hotspots_df
 
     def fetch_owasp_top10(self):
         """Fetch OWASP Top 10 - 2021 Analysis"""
@@ -937,6 +1046,7 @@ class SonarQubeAnalyzer:
         self.fetch_file_issues()
         self.fetch_all_issues_detailed()
         self.fetch_hotspot_categories()
+        self.fetch_all_hotspots_detailed()
         self.fetch_owasp_top10()
 
         # Quality Issues Analysis
@@ -956,11 +1066,13 @@ class SonarQubeAnalyzer:
         print(f"\n📁 Output directory: {self.output_dir.absolute()}")
         print("\n📊 Generated files:")
         print("  Data Files:")
+        print("    • all_issues_detailed.csv")
         print("    • file_issues.csv")
         print("    • overall_summary.csv")
         print("    • issues_by_severity.csv")
         print("    • top20_problematic_files.csv")
         print("    • hotspot_categories.csv")
+        print("    • all_hotspots_detailed.csv")
         print("    • owasp_top10_categories.csv")
         print("    • owasp_top10_summary.csv")
         print("\n  Visualizations:")
