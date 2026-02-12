@@ -355,7 +355,7 @@ class PdependAnalyzer:
         ax.grid(True, alpha=0.3, axis='x')
 
         plt.tight_layout()
-        save_path = self.output_dir / 'complex_methods_ccn15.png'
+        save_path = self.output_dir / 'complex_methods_ccn30.png'
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"  ✓ Saved: {save_path}")
         plt.close()
@@ -489,7 +489,7 @@ class PdependAnalyzer:
         print("    • top10_complex_files.png")
         print("    • method_complexity_histogram.png")
         print("    • wmc_vs_ncloc.png")
-        print("    • complex_methods_ccn15.png")
+        print("    • complex_methods_ccn30.png")
 
 
 def main():
