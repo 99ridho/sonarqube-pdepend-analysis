@@ -64,7 +64,7 @@ class PdependAnalyzer:
                 file_elem = class_elem.find('file')
                 filename = file_elem.get('name') if file_elem is not None else 'unknown'
 
-                if not any(value in filename for value in ["application/models", "application/controllers"]):
+                if not any(value in filename for value in ["application/models", "application/controllers", "sinkronisasiUKT_v2"]):
                     continue
                 
                 classes_data.append({
@@ -297,8 +297,6 @@ class PdependAnalyzer:
         ax.set_yticklabels(files)
         ax.invert_yaxis()
         ax.set_xlabel('Weighted Methods per Class (WMC)', fontsize=12)
-        # ax.set_title('Figure 5.2: Top 10 Most Complex Files by WMC', 
-        #             fontsize=14, fontweight='bold', pad=20)
         ax.legend(loc='lower right')
         ax.grid(True, alpha=0.3, axis='x')
         
@@ -397,8 +395,6 @@ class PdependAnalyzer:
         
         ax.set_xlabel('Cyclomatic Complexity (CCN)', fontsize=12)
         ax.set_ylabel('Number of Methods', fontsize=12)
-        # ax.set_title('Figure 5.3: Method Complexity Distribution', 
-        #             fontsize=14, fontweight='bold', pad=20)
         ax.legend(loc='upper right')
         ax.grid(True, alpha=0.3, axis='y')
         
@@ -443,8 +439,6 @@ class PdependAnalyzer:
         
         ax.set_xlabel('NCLOC (Non-Comment Lines of Code)', fontsize=12)
         ax.set_ylabel('WMC (Weighted Methods per Class)', fontsize=12)
-        # ax.set_title('Figure 5.4: File Size vs Complexity', 
-        #             fontsize=14, fontweight='bold', pad=20)
         ax.legend(loc='upper left')
         ax.grid(True, alpha=0.3)
         

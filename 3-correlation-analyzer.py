@@ -98,20 +98,6 @@ class CorrelationAnalyzer:
             'total_security',
             'total_reliability',
             'total_maintainability',
-            # 'total_issues',
-            # # By severity (all quality aspects combined)
-            # 'security_blocker',
-            # 'security_high',
-            # 'security_medium',
-            # 'security_low',
-            # 'reliability_blocker',
-            # 'reliability_high',
-            # 'reliability_medium',
-            # 'reliability_low',
-            # 'maintainability_blocker',
-            # 'maintainability_high',
-            # 'maintainability_medium',
-            # 'maintainability_low'
         ]
 
         # Initialize matrices
@@ -213,9 +199,6 @@ class CorrelationAnalyzer:
         # Create figure with larger size for readability
         fig, ax = plt.subplots(figsize=(14, 10))
 
-        # Create mask for non-significant correlations
-        #mask = self.pvalue_matrix >= 0.05
-
         # Create heatmap
         sns.heatmap(
             self.correlation_matrix,
@@ -236,8 +219,6 @@ class CorrelationAnalyzer:
         # Customize labels
         ax.set_xlabel('SonarQube Quality Issues', fontsize=12, fontweight='bold')
         ax.set_ylabel('PDépend Complexity Metrics', fontsize=12, fontweight='bold')
-        # ax.set_title('Correlation between Code Complexity and Quality Issues\n(Only p < 0.05 shown)',
-        #              fontsize=14, fontweight='bold', pad=20)
 
         # Rotate x-axis labels for readability
         plt.xticks(rotation=45, ha='right')
